@@ -1,41 +1,62 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router";
-import styles from "./Detail.module.css";
+import { useNavigate, useParams } from "react-router";
+import { useEffect, useState } from "react";
+import { Container } from "./Home.jsx";
+import styled from "styled-components";
+
+const BackBtn = styled.button`
+    display: block;
+    margin-bottom: 20px;
+    background: none;
+    border: none;
+    color: #ff5959;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0;
+
+    &:hover {
+        text-decoration: underline;
+    }
+`;
+
+const Plot = styled.p`
+    line-height: 1.6;
+    margin-top: 20px;
+`;
 
 function Detail() {
-    const { imdbID } = useParams();
-    const navigate = useNavigate();
+    const { id } = useParams();
     const [movie, setMovie] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        fetch(`https://www.omdbapi.com/?apikey=6a0a8eb4&i=${imdbID}&plot=full`)
+        fetch(`https://www.omdbapi.com/?apikey=6a0a8eb4&i=${id}&plot=full`)
             .then(res => res.json())
-            .then(data => setMovie(data));
-    }, [imdbID]);
+            .then(json => setMovie(json))
+            .catch(err => console.log(err));
+    }, []);
 
-    if (!movie) return <p>Loading...</p>;
-    if (movie.Response === "False") return <p>{movie.Error}</p>;
+    if (!movie) {
+        return <p>Loading...</p>;
+    }
 
     return (
-        <div className={styles.container}>
-            <button onClick={() => navigate(-1)}>← Back</button>
+        <Container>
+            <BackBtn onClick={() => navigate(-1)}>&larr; Back</BackBtn>
 
-            <div>
-                <img src={movie.Poster} alt={movie.Title} />
+            <img src={movie.Poster} alt={movie.Title} />
 
-                <h1>{movie.Title}</h1>
-                <p>
-                    <b>Year:</b> {movie.Year}
-                </p>
-                <p>
-                    <b>Genre:</b> {movie.Genre}
-                </p>
-                <p>
-                    <b>Director:</b> {movie.Director}
-                </p>
-                <p>{movie.Plot}</p>
-            </div>
-        </div>
+            <h1>{movie.Title}</h1>
+            <p>
+                <strong>Year:</strong> {movie.Year}
+            </p>
+            <p>
+                <strong>Genre:</strong> {movie.Genre}
+            </p>
+            <p>
+                <strong>Director:</strong> {movie.Director}
+            </p>
+            <Plot>{movie.Plot}</Plot>
+        </Container>
     );
 }
 
